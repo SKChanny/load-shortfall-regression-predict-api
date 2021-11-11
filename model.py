@@ -47,7 +47,7 @@ def _preprocess_data(data):
     # Convert the json string to a python dictionary object
     feature_vector_dict = json.loads(data)
     # Load the dictionary as a Pandas DataFrame.
-    feature_vector_df = pd.DataFrame.from_dict([feature_vector_dict])
+    df_new = pd.DataFrame.from_dict([feature_vector_dict])
 
     # ---------------------------------------------------------------
     # NOTE: You will need to swap the lines below for your own data
@@ -58,10 +58,28 @@ def _preprocess_data(data):
     # ---------------------------------------------------------------
 
     # ----------- Replace this code with your own preprocessing steps --------
-    predict_vector = feature_vector_df[['Madrid_wind_speed','Bilbao_rain_1h','Valencia_wind_speed']]
+    df_new=df_new.fillna(0)
+    df_new['time']=pd.to_datetime(df_new['time'])
+    df_new['hour'] = df_new['time'].dt.hour
+
+    df_new['minute'] = df_new['time'].dt.minute
+
+    df_new['second'] = df_new['time'].dt.second
+
+    df_new['year'] = df_new['time'].dt.year
+    df_new['month'] = df_new['time'].dt.month
+    df_new['day']=df_new['time'].dt.day
+
+    df_new['Valencia_wind_deg']=df_new['Valencia_wind_deg'].str.extract('(\d+)')
+    df_new['Valencia_wind_deg']=pd.to_numeric(df_new['Valencia_wind_deg'])
+
+    df_new.Seville_pressure=df_new.Seville_pressure.str.extract('(\d+)')
+    df_new.Seville_pressure=pd.to_numeric(df_new.Seville_pressure)
+
+    df_new=df_new.drop(['Unnamed: 0','time'],axis=1)
     # ------------------------------------------------------------------------
 
-    return predict_vector
+    return df_new
 
 def load_model(path_to_model:str):
     """Adapter function to load our pretrained model into memory.
